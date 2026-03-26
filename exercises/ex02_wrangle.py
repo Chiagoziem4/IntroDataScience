@@ -139,7 +139,6 @@ def _(pl, students):
 
     # Hint: Use pl.when().then().otherwise() chains
 
-
     students_categorized = students.with_columns(
         pl.when(pl.col("test_score") >= 90)
         .then(pl.lit("Excellent"))
