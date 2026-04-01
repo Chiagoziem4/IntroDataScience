@@ -58,12 +58,12 @@ def _(mo):
 def _(pl):
     # TODO: Load the students.csv file using Polars
     # The file is at: ../data/raw/students.csv
-
+    import polars as pl
     students = pl.read_csv("../data/raw/students.csv")  # Replace with pl.read_csv(...)
 
     # TODO: Display the first 10 rows
-    students.head()
-    return (students,)
+    print(students.head(10))
+    return pl, students
 
 
 @app.cell
@@ -74,10 +74,10 @@ def _(students):
     # - What are the data types?
 
     # Hint: Use students.shape, students.columns, students.dtypes, or students.describe()
-    print(f"Rows and columns: {students.shape}")
-    print(f"column names: {students.columns}")
-    print(f"Data types: {students.dtypes}")
-    students.describe()
+    print("Shape:", students.shape)
+    print("Columns:",students.columns)
+    print("Data types:", students.dtypes)
+    print(students.describe())
     return
 
 
@@ -105,10 +105,10 @@ def _(pl, students):
 
     grade_10_good_attendance = students.filter(
         (pl.col("grade_level") == 10) &
-        (pl.col("attendance_rate") > 90)
+        (pl.col("attendance_rate") > 0.9)
     )  # Use multiple conditions with &
 
-    grade_10_good_attendance
+    print("Number of grade 10 students with good attendance: {len(grade_10_good_attendance)}" )
     return
 
 
@@ -124,8 +124,8 @@ def _(mo):
 def _(students):
     # TODO: Select only the name, grade_level, and test_score columns
 
-    subset = students.select(["name", "grade_level", "test_score"])  # Use students.select(...)
-    subset.head(3)
+    subset = students.select("name", "grade_level", "test_score")  # Use students.select(...)
+    print(subset)
     return
 
 
@@ -141,16 +141,14 @@ def _(pl, students):
 
     students_categorized = students.with_columns(
         pl.when(pl.col("test_score") >= 90)
-        .then(pl.lit("Excellent"))
+        .then("Excellent")
         .when(pl.col("test_score") >= 75)
-        .then(pl.lit("Good"))
-        .when(pl.col("test_score") < 75)
-        .then(pl.lit("Needs Improvement"))
-        .otherwise(pl.lit("no value was found"))
+        .then("Good")
+        .otherwise("Needs Improvement")
         .alias("performance_category")
     )
 
-    students_categorized
+    primt(students_categorized)
     return
 
 
@@ -166,10 +164,8 @@ def _(mo):
 def _(pl):
     # TODO: Load the sales.json file
     # The file is at: ../data/raw/sales.json
-
-    sales = pl.read_json("../data/raw/sales.json")  # Replace with pl.read_json(...)
-
-    sales.head()
+    sales = pl.read_json("../data/raw/sales.json") 
+    print(sales.head())
     return (sales,)
 
 
@@ -177,13 +173,12 @@ def _(pl):
 def _(pl, sales):
     # TODO: Display basic info about the sales dataset
     # How many transactions? What's the date range?
-    print(f"Number of transactions: {sales.height}")
-
-    date_range = sales.select([
+    print("Shape:", sales.shape)
+    print("Data range:")
+    print (sales.select([
         pl.col("date").min().alias("start_date"),
         pl.col("date").max().alias("end_date")
-    ])
-    print(f"Data range: {date_range}")
+    ]))
     return
 
 
@@ -200,18 +195,22 @@ def _(pl, sales):
     # TODO: Calculate total sales by product_category
     # Sum up the total_amount for each category
     # Sort by total sales descending
-
-    category_sales = sales.group_by("product_category").agg(pl.col("total_amount").sum().alias("Sales_per_category")).sort("Sales_per_category", descending=True)
-    category_sales
-    return
+    if "sales" not in globals():
+        sales = pl.read_json("../data/raw/sales.json")
+    category_sales = sales.group_by("product_category").agg(
+        pl.col("total_amount").sum().alias("total_sales")
+    ).sort("Sales_per_category", descending=True)
+   print(category_sales)
+    return pl, sales
 
 
 @app.cell
 def _(pl, sales):
     # TODO: Find the average transaction amount by payment_method
 
-    avg_by_payment = sales.group_by("payment_method").agg(pl.col("total_amount").mean().alias("avg_transaction_amount"))
-    avg_by_payment
+    avg_by_payment = sales.group_by("payment_method").agg(
+        pl.col("total_amount").mean().alias("avg_transaction"))
+    print(avg_by_payment)
     return
 
 
@@ -220,8 +219,13 @@ def _(pl, sales):
     # TODO: Count how many transactions each region had
     # Also calculate the total revenue per region
 
-    region_summary = sales.group_by("region").agg(pl.col("transaction_id").count().alias("transaction_count"),pl.col("total_amount").sum().alias("total_revenue"))
-    region_summary # I used AI for understaning what the question wants because it was confusing for me
+    region_summary = sales.group_by("region").agg([
+        pl.count() .alias("transactions"),
+        pl.col("total_amount").sum().alias("total_revenue")
+    ])
+                                                   
+   print(region_summary)
+# Group by region,count and sum
     return
 
 
@@ -238,13 +242,12 @@ def _(pl, sales):
     # TODO: Convert the date column to datetime type
     # Then extract the month and create a new column "month"
 
-    sales_with_month = sales_with_month = sales.with_columns(
-        pl.col("date").str.to_date("%Y-%m-%d")
-    ).with_columns(
-        pl.col("date").dt.month().alias("month")
-    )  # Use with_columns() and pl.col().str.to_date()
+    sales_with_month = sales.with_columns([
+        pl.col("date").str.to_date().alias("date"),
+        pl.col("date").str.to_date().dt.month().alias("month")
+    ])  # Use with_columns() and pl.col().str.to_date()
 
-    sales_with_month.head()
+    print (sales_with_month)
     return (sales_with_month,)
 
 
@@ -254,14 +257,10 @@ def _(pl, sales_with_month):
     # Show which month had the highest revenue
 
     monthly_sales = sales_with_month.group_by("month").agg(
-        pl.col("total_amount").sum().alias("total_sales")
-    ).sort("month")
+        pl.col("total_amount").sum().alias("monthly_revenue")
+    ).sort("monthly_revenue", decending=True)
 
     print(monthly_sales)
-
-    top_month = monthly_sales.sort("total_sales", descending=True).head(1)
-
-    print(top_month)
     return
 
 
@@ -290,6 +289,8 @@ def _(mo):
     - Always explore your data before plotting
     """)
     return
+    if __name__ == "__main__":
+        app.run()
 
 
 if __name__ == "__main__":
