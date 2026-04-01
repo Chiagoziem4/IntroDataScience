@@ -46,10 +46,10 @@ def _():
     # - height: your height in meters as a float
     # - is_student: whether you're a student (True or False)
 
-    name = "Ayanda Dlokova"  # Replace with your name
-    age = 24  # Replace with your age
-    height = 1.85  # Replace with your height
-    is_student = False  # Change if needed
+    name = "Chiagoziem"  # Replace with your name
+    age = 21  # Replace with your age
+    height = 190  # Replace with your height
+    is_student = True  # Change if needed
 
     # Print them out
     print(f"Name: {name}")
@@ -98,7 +98,7 @@ def _(mo):
 @app.cell
 def _():
     # TODO: Create a list of your 5 favorite foods
-    favorite_foods = ["Burger", "Pizza", "Pasta", "Kota", "lasagna"]  # Add your foods here
+    favorite_foods = ["Rice", "Chips", "Pasta", "Chicken", "Yam"]  # Add your foods here
 
     # TODO: Print the first food
     print(f"First food: {favorite_foods[0]}")
@@ -108,7 +108,7 @@ def _():
 
     # TODO: Add another food to the list
     # (use the append method)
-    favorite_foods.append("Sushi")
+    favorite_foods.append("Ramen")
 
     # TODO: Print the length of the list
     print(f"Number of foods: {len(favorite_foods)}")  # Fix this line
@@ -132,10 +132,10 @@ def _():
     # - pages: number of pages (integer)
 
     book = {
-        "title": "The man who solved the market",
-        "author": "Gregory Zuckerman",
-        "year": 2019,
-        "pages": 320
+        "title": "Human Nature",
+        "author": "Robert Greene",
+        "year": 2018,
+        "pages": 624
     }
 
     # TODO: Print the book title and author
@@ -143,10 +143,10 @@ def _():
     print(f"Author: {book['author']}")  # Fix this line
 
     # TODO: Add a new key "genre" with a value
-    book["genre"] = "Business"
+    book["genre"] = "Psychology"
 
     # TODO: Update the year to a different value
-    book["year"] = 2020
+    book["year"] = 2019
     print("\nUpdated book:", book)
     return
 
@@ -226,7 +226,7 @@ def _():
     # TODO: Create a list of squares for numbers 1 through 10
     # Use a list comprehension!
 
-    squares = [n**2 for n in range(1, 11)]  # Use list comprehension here
+    squares = [x**2 for x in range(1, 11)]  # Use list comprehension here
 
     print(f"Squares: {squares}")
     # Expected: [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
@@ -239,7 +239,7 @@ def _():
     # Use a list comprehension with a condition!
 
     all_numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    even_numbers = [n for n in all_numbers if n % 2 == 0]  # Use list comprehension here
+    even_numbers = [x for x in all_numbers if x % 2 == 0]  # Use list comprehension here
 
     print(f"Even numbers: {even_numbers}")
     # Expected: [2, 4, 6, 8, 10, 12]
@@ -260,7 +260,7 @@ def _():
     # Example: greet("Alice") should return "Hello, Alice!"
 
     def greet(name):
-        return f"Hello, {name}!" 
+        return f"Hello, {name}" 
 
     # Test your function
     print(greet("Alice"))
@@ -316,7 +316,7 @@ def _():
             "count": len(numbers),
             "sum": sum(numbers),
             "average": sum(numbers) / len(numbers)
-        }
+       if numbers else 0 }
         return result
 
     # Test your function
